@@ -14,9 +14,9 @@ export function App() {
       setDisplay([...display, event.target.innerText])
       setEquation([...equation, event.target.innerText])
     } else {
-      // else: this is the users second input and clear the display with the new input, and set
-      // the equation with the second input
+      // else: this is the users second input and clear the display with the new input
       setDisplay(event.target.innerText)
+      // set the equation with the second input
       setEquation([...equation, event.target.innerText])
     }
   }
@@ -42,39 +42,58 @@ export function App() {
   }
 
   function handleEquation() {
+    // Initialize a total
     let total = 0;
+    // find the position in the array where the operator was entered
     for (let i = 0; i < equation.length - 1; i++) {
+      // switch dependent on the arithmetic operator
       switch (equation[i]) {
+        // ADDITION: if the equation.length = 2 -- sum the 0 index and the 2 index of the array
+        // if the equation.length >= 2 -- slice from index 0 to the operator then join the array together,
+        // and convert into a number then add to the secondary input after converting the same way.
         case '+':
           equation.length === 2 ?
             total += (Number(equation[i - 1]) + Number(equation[i + 1]))
             : total += (Number(equation.slice(0, i).join('')) + Number(equation.slice(i + 1).join('')))
           break;
+        // Subtraction: repeat the steps from addition but substitute a '-'
         case '−':
           equation.length === 2 ?
             total += (Number(equation[i - 1]) - Number(equation[i + 1]))
             : total += (Number(equation.slice(0, i).join('')) - Number(equation.slice(i + 1).join('')))
           break;
+        // Division: repeat the steps from addition but substitute a '/'
         case '÷':
           equation.length === 2 ?
             total += (Number(equation[i - 1]) / Number(equation[i + 1]))
             : total += (Number(equation.slice(0, i).join('')) / Number(equation.slice(i + 1).join('')))
           break;
+        // Multiplication: repeat the steps from addition but substitute a '*'
         case '×':
           equation.length === 2 ?
             total += (Number(equation[i - 1]) * Number(equation[i + 1]))
             : total += (Number(equation.slice(0, i).join('')) * Number(equation.slice(i + 1).join('')))
           break;
+        // default:
+        //   equation.length === 1 ? total += (Number(equation[0])) : total += (Number(equation.join('')))
+        //   break;
       }
     }
+    // Display the total to the user
     setDisplay(total)
+    // Clear the equation incase the user wants to use the lastTotal for the next equation
     setEquation([])
+    // Save the last total for the user to be used in the next equation.
     setLastTotal(total)
   }
 
   function handleAllClear() {
+    // Reset the display to 0 for the user
     setDisplay(['0'])
+    // Reset the equation for the next set of inputs
     setEquation([])
+    // Reset the lastTotal for the next set of inputs
+    setLastTotal(null)
   }
 
   return (
