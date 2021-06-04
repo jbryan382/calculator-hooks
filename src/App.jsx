@@ -4,35 +4,72 @@ import React, { useState } from 'react'
 export function App() {
   const [display, setDisplay] = useState(['0']);
   const [equation, setEquation] = useState([])
-  // const [operator, setOperator] = useState('');
+  const [lastTotal, setLastTotal] = useState(null)
 
   function handleNumClick(event) {
-    if (equation[equation.length - 1] !== '.' && !isNaN(equation[equation.length - 1])) {
+    // OPERATION: If the user has entered a number before, or starts their input with a '.',
+    // or enters a '.' after entering numbers for a decimal/float input
+    if (!isNaN(equation[equation.length - 1]) || event.target.innerText === '.' || equation[equation.length - 1] === '.') {
+      // setting the input to the display and equation keeping the previous state
       setDisplay([...display, event.target.innerText])
       setEquation([...equation, event.target.innerText])
     } else {
+      // else: this is the users second input and clear the display with the new input, and set
+      // the equation with the second input
       setDisplay(event.target.innerText)
       setEquation([...equation, event.target.innerText])
     }
   }
 
   function handleOperationClick(event) {
-    setEquation([...equation, event.target.innerText])
+    switch (event.target.innerText) {
+      case '±':
+        // OPERATION: convert the first input into abs(input)
+        setDisplay(['-', ...display])
+        setEquation(['-', ...equation])
+        break;
+      case '%':
+        // OPERATION: convert the first input into input/100
+        setDisplay((Number(equation.join('')) / 100).toString())
+        setEquation((Number(equation.join('')) / 100).toString())
+        break;
+      default:
+        // DEFAULT OPERATION: apply an arithmetic operation to the first input
+        // IF the display has not been cleared and there is a lastTotal add the lastTotal to the equation
+        display && lastTotal ? setEquation([...equation, lastTotal, event.target.innerText]) : setEquation([...equation, event.target.innerText])
+        break;
+    }
   }
 
   function handleEquation() {
     let total = 0;
     for (let i = 0; i < equation.length - 1; i++) {
       switch (equation[i]) {
+        case '+':
+          equation.length === 2 ?
+            total += (Number(equation[i - 1]) + Number(equation[i + 1]))
+            : total += (Number(equation.slice(0, i).join('')) + Number(equation.slice(i + 1).join('')))
+          break;
+        case '−':
+          equation.length === 2 ?
+            total += (Number(equation[i - 1]) - Number(equation[i + 1]))
+            : total += (Number(equation.slice(0, i).join('')) - Number(equation.slice(i + 1).join('')))
+          break;
         case '÷':
           equation.length === 2 ?
             total += (Number(equation[i - 1]) / Number(equation[i + 1]))
-            : total += (Number(equation.slice(0, i - 1).join('')) / Number(equation.slice(i + 1).join('')))
+            : total += (Number(equation.slice(0, i).join('')) / Number(equation.slice(i + 1).join('')))
+          break;
+        case '×':
+          equation.length === 2 ?
+            total += (Number(equation[i - 1]) * Number(equation[i + 1]))
+            : total += (Number(equation.slice(0, i).join('')) * Number(equation.slice(i + 1).join('')))
           break;
       }
     }
-    console.log(total)
     setDisplay(total)
+    setEquation([])
+    setLastTotal(total)
   }
 
   function handleAllClear() {
